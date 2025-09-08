@@ -1,0 +1,13 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22.19.0"
+  NPM_FLAGS = "--version" # This forces npm version check
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+  
+[context.production.environment]
+  NEXT_PRIVATE_TARGET = "server"
