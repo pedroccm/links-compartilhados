@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/supabase'
 
+type LinkUpdate = Database['public']['Tables']['lc_links']['Update']
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -108,20 +110,20 @@ export async function PUT(
       }
     }
 
-    const updateData: Record<string, any> = {}
+    const updateFields: any = {}
     
-    if (title !== undefined) updateData.title = title
-    if (description !== undefined) updateData.description = description
-    if (url !== undefined) updateData.url = url
-    if (author !== undefined) updateData.author = author
-    if (platform !== undefined) updateData.platform = platform
-    if (tags !== undefined) updateData.tags = tags
-    if (status !== undefined) updateData.status = status
+    if (title !== undefined) updateFields.title = title
+    if (description !== undefined) updateFields.description = description
+    if (url !== undefined) updateFields.url = url
+    if (author !== undefined) updateFields.author = author
+    if (platform !== undefined) updateFields.platform = platform
+    if (tags !== undefined) updateFields.tags = tags
+    if (status !== undefined) updateFields.status = status
 
     const { id } = await params
     const { data: link, error } = await supabase
       .from('lc_links')
-      .update(updateData)
+      .update(updateFields)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
