@@ -16,7 +16,6 @@ export interface Database {
           title: string
           description: string | null
           url: string
-          post_url: string | null
           author: string | null
           platform: 'twitter' | 'linkedin' | 'other'
           tags: string[]
@@ -39,7 +38,6 @@ export interface Database {
           title: string
           description?: string | null
           url: string
-          post_url?: string | null
           author?: string | null
           platform?: 'twitter' | 'linkedin' | 'other'
           tags?: string[]
@@ -62,7 +60,6 @@ export interface Database {
           title?: string
           description?: string | null
           url?: string
-          post_url?: string | null
           author?: string | null
           platform?: 'twitter' | 'linkedin' | 'other'
           tags?: string[]

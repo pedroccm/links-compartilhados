@@ -7,7 +7,7 @@ type LinkInsert = Database['public']['Tables']['lc_links']['Insert']
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       user = authUser
     } else {
       console.log('Falling back to cookie authentication')
-      const cookieStore = cookies()
+      const cookieStore = await cookies()
       
       const supabase = createServerClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -180,7 +180,6 @@ export async function POST(request: NextRequest) {
       title,
       description: description || null,
       url,
-      post_url: post_url || null,
       author: author || null,
       platform: platform || 'other',
       tags: tags || [],
