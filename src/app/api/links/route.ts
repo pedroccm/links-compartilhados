@@ -16,6 +16,12 @@ export async function GET(request: NextRequest) {
           get(name: string) {
             return cookieStore.get(name)?.value
           },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
         },
       }
     )
@@ -65,26 +71,69 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
+    console.log('POST /api/links - Starting request')
+    
+    // Check for Authorization header first
+    const authHeader = request.headers.get('authorization')
+    let user = null
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      console.log('Using Authorization header')
+      const token = authHeader.substring(7)
+      
+      // Create a client with the access token
+      const supabase = createServerClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          global: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        },
-      }
-    )
+          cookies: {
+            get() { return undefined },
+            set() {},
+            remove() {},
+          },
+        }
+      )
+      
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      console.log('Token auth result - User ID:', authUser?.id, 'Error:', authError)
+      user = authUser
+    } else {
+      console.log('Falling back to cookie authentication')
+      const cookieStore = cookies()
+      
+      const supabase = createServerClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              return cookieStore.get(name)?.value
+            },
+            set(name: string, value: string, options: any) {
+              cookieStore.set({ name, value, ...options })
+            },
+            remove(name: string, options: any) {
+              cookieStore.set({ name, value: '', ...options })
+            },
+          },
+        }
+      )
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+      const { data: { user: cookieUser } } = await supabase.auth.getUser()
+      user = cookieUser
+    }
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      console.log('No user found, returning 401')
+      return NextResponse.json({ error: 'Unauthorized - No authenticated user' }, { status: 401 })
     }
+
+    console.log('Authenticated user:', user.id)
 
     const body = await request.json()
     const { title, description, url, post_url, author, platform, tags, category_ids } = body
@@ -112,6 +161,19 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid post URL format' }, { status: 400 })
       }
     }
+
+    // Create a new supabase client for the database operation
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get() { return undefined },
+          set() {},
+          remove() {},
+        },
+      }
+    )
 
     const linkData: LinkInsert = {
       user_id: user.id,

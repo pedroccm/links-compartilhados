@@ -14,12 +14,26 @@ export function useLinks() {
     setError(null)
 
     try {
+      // Get the current session and access token
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
       const params = new URLSearchParams()
       
       if (filters?.status) params.set('status', filters.status)
       if (filters?.platform) params.set('platform', filters.platform)
       
-      const response = await fetch(`/api/links?${params}`)
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
+      const response = await fetch(`/api/links?${params}`, {
+        headers,
+      })
       
       if (!response.ok) {
         throw new Error('Erro ao buscar links')
@@ -38,10 +52,19 @@ export function useLinks() {
 
   const createLink = useCallback(async (data: CreateLinkData) => {
     try {
+      // Get the current session and access token
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session?.access_token) {
+        throw new Error('Não há sessão ativa')
+      }
+
       const response = await fetch('/api/links', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(data),
       })
