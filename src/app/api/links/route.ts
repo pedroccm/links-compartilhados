@@ -8,7 +8,7 @@ type LinkInsert = Database['public']['Tables']['lc_links']['Insert']
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies()
-    const supabase = createServerClient<Database>(
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       const token = authHeader.substring(7)
       
       // Create a client with the access token
-      const supabase = createServerClient<Database>(
+      const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       console.log('Falling back to cookie authentication')
       const cookieStore = await cookies()
       
-      const supabase = createServerClient<Database>(
+      const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a new supabase client for the database operation
-    const supabase = createServerClient<Database>(
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    const linkData: LinkInsert = {
+    const linkData: any = {
       user_id: user.id,
       title,
       description: description || null,
