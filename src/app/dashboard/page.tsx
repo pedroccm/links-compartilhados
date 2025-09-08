@@ -38,12 +38,12 @@ export default function DashboardPage() {
     window.location.href = '/login'
   }
 
-  const handleEditLink = (link) => {
+  const handleEditLink = (link: any) => {
     setEditingLink(link)
     setShowEditModal(true)
   }
 
-  const handleEditSubmit = async (id, data) => {
+  const handleEditSubmit = async (id: string, data: any) => {
     const result = await updateLink(id, data)
     if (result.success) {
       setShowEditModal(false)
