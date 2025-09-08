@@ -6,8 +6,10 @@ import { useLinks } from '@/hooks/useLinks'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LinkCard } from '@/components/links/link-card'
+import { LinksTable } from '@/components/links/links-table'
 import { AddLinkModal } from '@/components/links/add-link-modal'
-import { Plus, Search, Filter } from 'lucide-react'
+import { EditLinkModal } from '@/components/links/edit-link-modal'
+import { Plus, Search, Filter, Grid, Table as TableIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -15,7 +17,10 @@ export default function DashboardPage() {
   const { user, signOut } = useAuth()
   const { links, loading, createLink, updateLink, deleteLink } = useLinks()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingLink, setEditingLink] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
 
   if (!user) {
     return (
@@ -31,6 +36,20 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     await signOut()
     window.location.href = '/login'
+  }
+
+  const handleEditLink = (link) => {
+    setEditingLink(link)
+    setShowEditModal(true)
+  }
+
+  const handleEditSubmit = async (id, data) => {
+    const result = await updateLink(id, data)
+    if (result.success) {
+      setShowEditModal(false)
+      setEditingLink(null)
+    }
+    return result
   }
 
   // Filter links based on search query
@@ -125,7 +144,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar and View Toggle */}
         <div className="flex gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -135,6 +154,24 @@ export default function DashboardPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
+          </div>
+          <div className="flex border rounded-md">
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+              className="rounded-r-none"
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              className="rounded-l-none"
+            >
+              <TableIcon className="h-4 w-4" />
+            </Button>
           </div>
           <Button variant="outline" size="icon">
             <Filter className="h-4 w-4" />
@@ -161,20 +198,30 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Links Grid */}
+        {/* Links Display */}
         {!loading && (
           <>
             {filteredLinks.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {filteredLinks.map((link) => (
-                  <LinkCard
-                    key={link.id}
-                    link={link}
-                    onUpdate={updateLink}
-                    onDelete={deleteLink}
-                  />
-                ))}
-              </div>
+              viewMode === 'cards' ? (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {filteredLinks.map((link) => (
+                    <LinkCard
+                      key={link.id}
+                      link={link}
+                      onUpdate={updateLink}
+                      onDelete={deleteLink}
+                      onEdit={handleEditLink}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <LinksTable
+                  links={filteredLinks}
+                  onUpdate={updateLink}
+                  onDelete={deleteLink}
+                  onEdit={handleEditLink}
+                />
+              )
             ) : links.length === 0 ? (
               /* Empty State - No Links */
               <div className="text-center py-12">
@@ -218,6 +265,14 @@ export default function DashboardPage() {
         open={showAddModal}
         onOpenChange={setShowAddModal}
         onSubmit={createLink}
+      />
+
+      {/* Edit Link Modal */}
+      <EditLinkModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        link={editingLink}
+        onSubmit={handleEditSubmit}
       />
     </div>
   )

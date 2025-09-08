@@ -87,11 +87,21 @@ export function useLinks() {
 
   const updateLink = useCallback(async (id: string, data: Partial<Link>) => {
     try {
+      // Get the current session and access token
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
       const response = await fetch(`/api/links/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(data),
       })
 
@@ -115,8 +125,19 @@ export function useLinks() {
 
   const deleteLink = useCallback(async (id: string) => {
     try {
+      // Get the current session and access token
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const headers: Record<string, string> = {}
+      
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
       const response = await fetch(`/api/links/${id}`, {
         method: 'DELETE',
+        headers,
       })
 
       if (!response.ok) {

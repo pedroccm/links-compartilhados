@@ -120,79 +120,7 @@ export function LinkCard({ link, onUpdate, onDelete, onEdit }: LinkCardProps) {
       "group hover:shadow-md transition-all duration-200",
       isLoading && "opacity-50 pointer-events-none"
     )}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            {getPlatformIcon(link.platform)}
-            {link.author && (
-              <span className="text-sm text-muted-foreground truncate">
-                {link.author}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <div 
-              className={cn("w-2 h-2 rounded-full", statusInfo.color)}
-              title={statusInfo.label}
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Abrir menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleOpenLink}>
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Abrir link
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCopyUrl}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copiar URL
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleToggleFavorite}>
-                  <Star className={cn(
-                    "mr-2 h-4 w-4",
-                    isFavorite && "fill-current text-yellow-500"
-                  )} />
-                  {isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                </DropdownMenuItem>
-                {link.status !== 'archived' && (
-                  <DropdownMenuItem onClick={handleArchive}>
-                    <Archive className="mr-2 h-4 w-4" />
-                    Arquivar
-                  </DropdownMenuItem>
-                )}
-                {onEdit && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => onEdit(link)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleDelete}
-                  className="text-red-600 focus:text-red-600"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Deletar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="pt-0">
+      <CardContent className="p-4">
         <div className="space-y-3">
           <div>
             <button
@@ -228,7 +156,13 @@ export function LinkCard({ link, onUpdate, onDelete, onEdit }: LinkCardProps) {
 
           {/* Footer */}
           <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-            <span>{formatDate(link.created_at)}</span>
+            <div className="flex items-center gap-2">
+              <div 
+                className={cn("w-2 h-2 rounded-full", statusInfo.color)}
+                title={statusInfo.label}
+              />
+              <span>{formatDate(link.created_at)}</span>
+            </div>
             <div className="flex items-center gap-2">
               {link.view_count > 0 && (
                 <div className="flex items-center gap-1">
@@ -262,6 +196,61 @@ export function LinkCard({ link, onUpdate, onDelete, onEdit }: LinkCardProps) {
                 <ExternalLink className="h-3 w-3" />
                 <span className="sr-only">Abrir conteúdo</span>
               </Button>
+
+              {/* Menu de Opções */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                    <span className="sr-only">Abrir menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleOpenLink}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Abrir link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopyUrl}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copiar URL
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleToggleFavorite}>
+                    <Star className={cn(
+                      "mr-2 h-4 w-4",
+                      isFavorite && "fill-current text-yellow-500"
+                    )} />
+                    {isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                  </DropdownMenuItem>
+                  {link.status !== 'archived' && (
+                    <DropdownMenuItem onClick={handleArchive}>
+                      <Archive className="mr-2 h-4 w-4" />
+                      Arquivar
+                    </DropdownMenuItem>
+                  )}
+                  {onEdit && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => onEdit(link)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={handleDelete}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Deletar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
